@@ -1,19 +1,16 @@
 # Visual Studio 缓存目录
 .vs/
 
-# 编译输出（每次构建都会重新生成）
+# 编译输出
 bin/
 obj/
 
-# 用户特定设置（每台电脑不一样）
+# 用户特定设置
 *.user
 *.suo
 
-# 原有的加上这几行：
-*.db              # SQLite 数据库文件（运行时生成）
-contacts.json     # JSON 数据文件(ContactBook 留下这行)
-#appsettings.json  # 配置文件建议改模板方式：保留一份 appsettings.example.json 作模板
+# SQLite 数据库文件（运行时生成）
+*.db
 
-
-# 学习文档（可选：如果你想保留，把下面这行删掉）
-# 项目复习总结.md
+# VS 临时生成文件
+*_wpftmp.*
