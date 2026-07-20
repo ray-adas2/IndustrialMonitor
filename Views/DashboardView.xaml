@@ -1,0 +1,51 @@
+<UserControl x:Class="IndustrialMonitor.Views.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="600" d:DesignWidth="900">
+    <UserControl.Resources>
+        <Style x:Key="StatCard" TargetType="Border">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="20,16"/>
+            <Setter Property="Margin" Value="8"/>
+        </Style>
+    </UserControl.Resources>
+    <StackPanel>
+        <TextBlock Text="📊 首页总览" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,24"/>
+        <UniformGrid Columns="4" Rows="1">
+            <Border Style="{StaticResource StatCard}">
+                <StackPanel>
+                    <TextBlock Text="🖥" FontSize="24"/>
+                    <TextBlock Text="设备总数" FontSize="13" Foreground="#64748B" Margin="0,8,0,0"/>
+                    <TextBlock Text="{Binding TotalDevices}" FontSize="32" FontWeight="Bold" Foreground="#1E293B"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource StatCard}">
+                <StackPanel>
+                    <TextBlock Text="🟢" FontSize="24"/>
+                    <TextBlock Text="在线设备" FontSize="13" Foreground="#64748B" Margin="0,8,0,0"/>
+                    <TextBlock Text="{Binding OnlineDevices}" FontSize="32" FontWeight="Bold" Foreground="#10B981"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource StatCard}">
+                <StackPanel>
+                    <TextBlock Text="⚠" FontSize="24"/>
+                    <TextBlock Text="当前报警" FontSize="13" Foreground="#64748B" Margin="0,8,0,0"/>
+                    <TextBlock Text="{Binding AlarmCount}" FontSize="32" FontWeight="Bold" Foreground="#EF4444"/>
+                </StackPanel>
+            </Border>
+            <Border Style="{StaticResource StatCard}">
+                <StackPanel>
+                    <TextBlock Text="⏱" FontSize="24"/>
+                    <TextBlock Text="系统状态" FontSize="13" Foreground="#64748B" Margin="0,8,0,0"/>
+                    <TextBlock Text="运行中" FontSize="24" FontWeight="Bold" Foreground="#3B82F6"/>
+                </StackPanel>
+            </Border>
+        </UniformGrid>
+        <TextBlock Text="平台运行概览 — 更多统计图表将在后续版本加入"
+                   FontSize="13" Foreground="#94A3B8" Margin="8,24,0,0"/>
+    </StackPanel>
+</UserControl>

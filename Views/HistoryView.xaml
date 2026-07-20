@@ -1,0 +1,11 @@
+<UserControl x:Class="IndustrialMonitor.Views.HistoryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="📜 历史记录" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,16"/>
+        <Border Background="White" CornerRadius="8" Padding="40">
+            <TextBlock Text="历史数据查询功能将在下一阶段实现"
+                       FontSize="14" Foreground="#94A3B8" HorizontalAlignment="Center"/>
+        </Border>
+    </StackPanel>
+</UserControl>

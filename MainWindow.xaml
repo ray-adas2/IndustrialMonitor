@@ -1,230 +1,59 @@
-﻿<Window x:Class="IndustrialMonitor.MainWindow"
+<Window x:Class="IndustrialMonitor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
-        xmlns:local="clr-namespace:IndustrialMonitor"
+        xmlns:views="clr-namespace:IndustrialMonitor.Views"
         mc:Ignorable="d"
-        Title="工业实时监控系统" Height="600" Width="950" WindowStartupLocation="CenterScreen">
+        Title="工业监控平台" Height="900" Width="1400"
+        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        Background="#F1F5F9">
 
-    <Window.Resources>
-        <!--红色警报灯呼吸闪烁动画 -->
-        <Storyboard x:Key="AlarmFlashing">
-            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                             From="1.0" To="0.2" Duration="0:0:0.5"
-                             AutoReverse="True" RepeatBehavior="Forever" />
-        </Storyboard>
-    </Window.Resources>
-    <Grid Background="#F8FAFC">
+
+    <Grid>
         <Grid.RowDefinitions>
-            <!-- 0: 顶部标题栏 + 当前选中设备简报 -->
-            <RowDefinition Height="Auto"/>
-            <!-- 1: 报警消息栏 -->
-            <RowDefinition Height="Auto"/>
-            <!-- 2: 多设备 TabControl & 实时图表区 (核心) -->
-            <RowDefinition Height="2*"/>
-            <!-- 3: 底部历史报警日志 DataGrid -->
+            <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
-            <!-- 4: 底部设备控制按钮 -->
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="28"/>
         </Grid.RowDefinitions>
 
-        <!-- ================= 0. 顶部标题栏 ================= -->
-        <Border Grid.Row="0" Background="#1E293B" CornerRadius="8" Padding="15,10" Margin="0,0,0,10">
+        <!-- Header -->
+        <views:HeaderView Grid.Row="0" DataContext="{Binding}" />
+
+        <!-- Body -->
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="220"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- 左侧导航栏 -->
+            <views:SidebarView Grid.Column="0" DataContext="{Binding Navigation}" />
+
+            <!-- 中央工作区：PageHost -->
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto"
+                          Background="#F1F5F9">
+                <ContentControl Content="{Binding CurrentPage}" Margin="16"/>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Background="#0F172A" Padding="12,0">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
-                <!-- 系统标题 -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="🏭" FontSize="20" Margin="0,0,8,0"/>
-                    <TextBlock Text="工业设备实时数据流监控系统" FontSize="18" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Text="Industrial Monitor v1.0" FontSize="11" Foreground="#64748B"/>
+                    <TextBlock Text=" | .NET 8 + WPF + LiveCharts2" FontSize="11" Foreground="#64748B"/>
                 </StackPanel>
-
-                <!-- 当前选中设备的实时数据摘要 (绑定 SelectedDevice) -->
-                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                    <!-- 报警状态灯 -->
-                    <Ellipse Width="12" Height="12" Margin="0,0,8,0">
-                        <Ellipse.Style>
-                            <Style TargetType="Ellipse">
-                                <Setter Property="Fill" Value="#10B981"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding SelectedDevice.IsAlarming}" Value="True">
-                                        <DataTrigger.EnterActions>
-                                            <BeginStoryboard Storyboard="{StaticResource AlarmFlashing}" x:Name="ActiveAlarmFlashing"/>
-                                        </DataTrigger.EnterActions>
-                                        <DataTrigger.ExitActions>
-                                            <StopStoryboard BeginStoryboardName="ActiveAlarmFlashing"/>
-                                        </DataTrigger.ExitActions>
-                                    </DataTrigger>
-
-                                </Style.Triggers>
-                            </Style>
-                        </Ellipse.Style>
-                    </Ellipse>
-
-                    <TextBlock Text="状态监控" Foreground="#94A3B8" Margin="0,0,20,0" VerticalAlignment="Center"/>
-
-                    <TextBlock Text="当前温度: " Foreground="#94A3B8" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding SelectedDevice.LatestTemperature}" Foreground="#F87171" FontWeight="Bold" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
-
-                    <TextBlock Text="当前压力: " Foreground="#94A3B8" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding SelectedDevice.LatestPressure}" Foreground="#60A5FA" FontWeight="Bold" FontSize="16" Margin="0,0,20,0" VerticalAlignment="Center"/>
-
-                    <TextBlock Text="在线设备数: " Foreground="#94A3B8" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Devices.Count}" Foreground="#34D399" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
-                    
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Ellipse Width="6" Height="6" Fill="#10B981" Margin="0,0,4,0"/>
+                    <TextBlock Text="系统运行中" FontSize="11" Foreground="#94A3B8"/>
                 </StackPanel>
             </Grid>
         </Border>
-
-        <!-- ================= 1. 报警消息条 ================= -->
-        <Border Grid.Row="1" CornerRadius="6" Padding="12,8" Margin="0,0,0,10">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Background" Value="#E2E8F0"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding SelectedDevice.IsAlarming}" Value="True">
-                            <Setter Property="Background" Value="#FEE2E2"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
-            <TextBlock Text="{Binding SelectedDevice.AlarmMessage}" HorizontalAlignment="Center" FontWeight="Bold" FontSize="14">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
-                        <Setter Property="Foreground" Value="#334155"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedDevice.IsAlarming}" Value="True">
-                                <Setter Property="Foreground" Value="#DC2626"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </TextBlock.Style>
-            </TextBlock>
-        </Border>
-
-        <!-- ================= 2. 多设备 TabControl & 图表区 ================= -->
-        <Grid Grid.Row="2" Margin="0,0,0,10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <!-- 顶部设备操作工具栏 (加号/减号) -->
-            <StackPanel Grid.Row="0" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,5">
-                <Button Content="➕ 添加新设备" Command="{Binding AddDeviceCommand}" 
-                        Background="#10B981" Foreground="White" FontWeight="Bold" 
-                        Padding="10,4" Margin="0,0,5,0" BorderThickness="0"/>
-
-                <Button Content="✕ 移除当前设备" Command="{Binding RemoveDeviceCommand}" 
-                        CommandParameter="{Binding SelectedDevice}"
-                        Background="#EF4444" Foreground="White" FontWeight="Bold" 
-                        Padding="10,4" BorderThickness="0"/>
-            </StackPanel>
-
-            <!-- 多设备 TabControl -->
-            <TabControl Grid.Row="1" ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}"
-                        Background="Transparent" BorderThickness="0">
-
-                <!-- Tab 标签样式 (显示 DeviceId) -->
-                <TabControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Padding="5,2">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="📟 "/>
-                                <TextBlock Text="{Binding DeviceId}" FontWeight="Bold"/>
-                            </StackPanel>
-                        </Border>
-                    </DataTemplate>
-                </TabControl.ItemTemplate>
-
-                <!-- Tab 内部呈现视图 (自动绑定至当前选中的 DeviceViewModel) -->
-                <TabControl.ContentTemplate>
-                    <DataTemplate>
-                        <Grid Margin="0,10,0,0">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- 左图：实时温度曲线 -->
-                            <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="10">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="📈 实时温度波动曲线 (阈值: 85°C)" FontWeight="Bold" Foreground="#475569" Margin="0,0,0,10"/>
-
-                                    <!-- 此处位于 ContentTemplate 内，直接绑 DeviceViewModel 属性 -->
-                                    <lvc:CartesianChart Grid.Row="1" 
-                                                        Series="{Binding TemperatureSeries}" 
-                                                        Sections="{Binding TemperatureSections}"/>
-                                </Grid>
-                            </Border>
-
-                            <!-- 右图：实时压力曲线 -->
-                            <Border Grid.Column="2" Background="White" CornerRadius="8" Padding="10">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="Auto"/>
-                                        <RowDefinition Height="*"/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Grid.Row="0" Text="📉 实时压力波动曲线 (阈值: 2.400MPa)" FontWeight="Bold" Foreground="#475569" Margin="0,0,0,10"/>
-
-                                    <lvc:CartesianChart Grid.Row="1" 
-                                                        Series="{Binding PressureSeries}" 
-                                                        Sections="{Binding PressureSections}"/>
-                                </Grid>
-                            </Border>
-                        </Grid>
-                    </DataTemplate>
-                </TabControl.ContentTemplate>
-            </TabControl>
-        </Grid>
-
-        <!-- ================= 3. 历史报警记录 (全局 DataGrid) ================= -->
-        <Border Grid.Row="3" Background="White" CornerRadius="8" Padding="10" Margin="0,0,0,10">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" Text="📋 历史报警记录日志 (SQLite 全局持久化)" FontWeight="Bold" Foreground="#475569" Margin="0,0,0,5"/>
-
-                <DataGrid Grid.Row="1" ItemsSource="{Binding AlarmHistory}" AutoGenerateColumns="False" 
-                          IsReadOnly="True" GridLinesVisibility="Horizontal" HeadersVisibility="Column"
-                          Background="Transparent" BorderThickness="0">
-                    <DataGrid.Columns>
-                        <DataGridTextColumn Header="编号" Binding="{Binding Id}" Width="60"/>
-                        <DataGridTextColumn Header="设备号" Binding="{Binding DeviceId}" Width="90"/>
-                        <DataGridTextColumn Header="异常类别" Binding="{Binding AlarmType}" Width="110"/>
-                        <DataGridTextColumn Header="会话最高值" Binding="{Binding MaxValue, StringFormat={}{0:F2}}" Width="100"/>
-                        <DataGridTextColumn Header="安全阈值" Binding="{Binding Threshold, StringFormat={}{0:F2}}" Width="90"/>
-                        <DataGridTextColumn Header="发生时间" Binding="{Binding StartTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="170"/>
-                        <DataGridTextColumn Header="恢复时间" Binding="{Binding EndTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="170"/>
-                    </DataGrid.Columns>
-                </DataGrid>
-            </Grid>
-        </Border>
-
-        <!-- ================= 4. 控制按钮 (作用于当前选中的 SelectedDevice) ================= -->
-        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Center">
-            <Button Content="▶ 开始实时监控" 
-                    Command="{Binding SelectedDevice.StartCommand}" 
-                    Width="160" Height="36" Margin="0,0,20,0" 
-                    Background="#10B981" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
-
-            <Button Content="⏹ 停止实时监控" 
-                    Command="{Binding SelectedDevice.StopCommand}" 
-                    Width="160" Height="36" 
-                    Background="#EF4444" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
-        </StackPanel>
     </Grid>
 </Window>

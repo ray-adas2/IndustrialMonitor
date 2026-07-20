@@ -1,0 +1,21 @@
+<UserControl x:Class="IndustrialMonitor.Views.AlarmCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="⚠ 报警中心" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,16"/>
+        <Border Background="White" CornerRadius="8" Padding="16">
+            <DataGrid ItemsSource="{Binding Alarms}" AutoGenerateColumns="False"
+                      IsReadOnly="True" GridLinesVisibility="Horizontal">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="编号" Binding="{Binding Id}" Width="60"/>
+                    <DataGridTextColumn Header="设备号" Binding="{Binding DeviceId}" Width="100"/>
+                    <DataGridTextColumn Header="报警类型" Binding="{Binding AlarmType}" Width="110"/>
+                    <DataGridTextColumn Header="峰值" Binding="{Binding MaxValue, StringFormat={}{0:F2}}" Width="80"/>
+                    <DataGridTextColumn Header="阈值" Binding="{Binding Threshold, StringFormat={}{0:F2}}" Width="80"/>
+                    <DataGridTextColumn Header="开始时间" Binding="{Binding StartTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="170"/>
+                    <DataGridTextColumn Header="结束时间" Binding="{Binding EndTime, StringFormat={}{0:yyyy-MM-dd HH:mm:ss}}" Width="170"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </StackPanel>
+</UserControl>

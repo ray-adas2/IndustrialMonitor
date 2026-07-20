@@ -1,8 +1,27 @@
-﻿<Application x:Class="IndustrialMonitor.App"
+<Application x:Class="IndustrialMonitor.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:IndustrialMonitor">
+             xmlns:vm="clr-namespace:IndustrialMonitor.ViewModels"
+             xmlns:views="clr-namespace:IndustrialMonitor.Views">
     <Application.Resources>
-         
+        <!-- ViewModel → View 映射（ContentControl 自动匹配 DataTemplate） -->
+        <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
+            <views:DashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:DeviceManagementViewModel}">
+            <views:DeviceManagementView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:MonitoringViewModel}">
+            <views:MonitoringView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:AlarmCenterViewModel}">
+            <views:AlarmCenterView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:HistoryViewModel}">
+            <views:HistoryView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <views:SettingsView/>
+        </DataTemplate>
     </Application.Resources>
 </Application>

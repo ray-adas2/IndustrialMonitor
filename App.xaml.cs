@@ -20,8 +20,6 @@ public partial class App : Application
         base.OnStartup(e);
 
         //构建Configuration 读取appsettings.json文件
-        /*var config = new ConfigurationBuilder().SetBasePath(AppDomain.CurrentDomain.BaseDirectory).AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();*/
-
         var builder = new ConfigurationBuilder()
             .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
             .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -63,15 +61,26 @@ public partial class App : Application
 
 
         //注册服务（接口->实现）
-        services.AddSingleton<IAlarmLogService, AlarmLogService>();//全局单例
-        services.AddTransient<IMockDataService, MockDataService>();//每次获取都是新实例
+        services.AddSingleton<IAlarmLogService, AlarmLogService>();
+        services.AddTransient<IMockDataService, MockDataService>();
 
-        //注册 VIewModels
+        // 设备管理服务（全局单例，跨页面共享）
+        services.AddSingleton<DeviceManagerService>();
+
+        // Shell 层 ViewModels
         services.AddSingleton<MainViewModel>();
-        services.AddTransient<DeviceViewModel>();
+        services.AddSingleton<NavigationViewModel>();
 
-        // 🟢 关键修复：显式注册 Func<DeviceViewModel> 工厂委托
-        // 告诉容器：当有人需要 Func<DeviceViewModel> 时，就从 ServiceProvider 中 GetRequiredService<DeviceViewModel>()
+        // 页面 ViewModels（每个页面一个实例）
+        services.AddSingleton<DashboardViewModel>();
+        services.AddSingleton<DeviceManagementViewModel>();
+        services.AddSingleton<MonitoringViewModel>();
+        services.AddSingleton<AlarmCenterViewModel>();
+        services.AddSingleton<HistoryViewModel>();
+        services.AddSingleton<SettingsViewModel>();
+
+        // 设备 ViewModel（Transient：每个设备独立实例）
+        services.AddTransient<DeviceViewModel>();
         services.AddSingleton<Func<DeviceViewModel>>(provider => () => provider.GetRequiredService<DeviceViewModel>());
 
         //注册Views

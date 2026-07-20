@@ -1,0 +1,39 @@
+<UserControl x:Class="IndustrialMonitor.Views.DeviceManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel>
+        <TextBlock Text="🖥 设备管理" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,16"/>
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+            <Button Content="+ 添加设备" Command="{Binding AddDeviceCommand}"
+                    Background="#10B981" Foreground="White" Padding="12,6" BorderThickness="0"/>
+        </StackPanel>
+        <Border Background="White" CornerRadius="8" Padding="12">
+            <ListView ItemsSource="{Binding Devices}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="设备编号" DisplayMemberBinding="{Binding DeviceId}" Width="120"/>
+                        <GridViewColumn Header="最新温度" DisplayMemberBinding="{Binding LatestTemperature}" Width="140"/>
+                        <GridViewColumn Header="最新压力" DisplayMemberBinding="{Binding LatestPressure}" Width="140"/>
+                        <GridViewColumn Header="报警状态" Width="100">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding IsAlarming}" Foreground="#EF4444"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="操作" Width="80">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="删除" Background="#EF4444" Foreground="White"
+                                            Padding="6,3" BorderThickness="0" FontSize="12"
+                                            Command="{Binding DataContext.RemoveDeviceCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                            CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
+    </StackPanel>
+</UserControl>
