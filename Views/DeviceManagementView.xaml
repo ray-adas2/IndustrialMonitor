@@ -14,10 +14,58 @@
                         <GridViewColumn Header="设备编号" DisplayMemberBinding="{Binding DeviceId}" Width="120"/>
                         <GridViewColumn Header="最新温度" DisplayMemberBinding="{Binding LatestTemperature}" Width="140"/>
                         <GridViewColumn Header="最新压力" DisplayMemberBinding="{Binding LatestPressure}" Width="140"/>
-                        <GridViewColumn Header="报警状态" Width="100">
+                        <GridViewColumn Header="运行状态" Width="80">
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding IsAlarming}" Foreground="#EF4444"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="8" Height="8" Margin="0,0,4,0">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="#D1D5DB"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsRunning}" Value="True">
+                                                            <Setter Property="Fill" Value="#10B981"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <TextBlock Text="{Binding IsRunning, StringFormat='{}{0:D}'}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="报警状态" Width="80">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="8" Height="8" Margin="0,0,4,0">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="#10B981"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsAlarming}" Value="True">
+                                                            <Setter Property="Fill" Value="#EF4444"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="正常"/>
+                                                    <Setter Property="Foreground" Value="#10B981"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsAlarming}" Value="True">
+                                                            <Setter Property="Text" Value="报警"/>
+                                                            <Setter Property="Foreground" Value="#EF4444"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>

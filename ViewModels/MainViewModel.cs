@@ -11,10 +11,9 @@ namespace IndustrialMonitor.ViewModels
     public partial class MainViewModel : ObservableObject
     {
         private readonly IAlarmLogService _alarmLogService;
-        private readonly Func<DeviceViewModel> _deviceFactory;
         private readonly IServiceProvider _serviceProvider;
+        private readonly DeviceManagerService _deviceManager;
         private readonly Dictionary<string, object?> _pageCache = new();
-        private int _deviceCounter = 1;
 
         // ── 导航（Shell 层）──
         public NavigationViewModel Navigation { get; } = new();
@@ -22,33 +21,34 @@ namespace IndustrialMonitor.ViewModels
         [ObservableProperty]
         private object? _currentPage;
 
-        // CurrentPage 为 null 时显示监控区
-        public bool IsMonitoringVisible => CurrentPage is null;
-
         public string Breadcrumb => Navigation.SelectedMenuItem is null
             ? "首页"
             : $"首页 / {Navigation.SelectedMenuItem.Title}";
 
-        // ── 设备管理 ──
-        public ObservableCollection<DeviceViewModel> Devices { get; } = new();
+        // ── 委托给 DeviceManagerService ──
+        public ObservableCollection<DeviceViewModel> Devices => _deviceManager.Devices;
 
-        [ObservableProperty]
-        private DeviceViewModel? _selectedDevice;
+        public DeviceViewModel? SelectedDevice
+        {
+            get => _deviceManager.SelectedDevice;
+            set => _deviceManager.SelectedDevice = value;
+        }
 
-        // 全局历史报警列表
         public ObservableCollection<AlarmRecord> AlarmHistory { get; } = new();
 
-        public MainViewModel(IAlarmLogService alarmLogService, Func<DeviceViewModel> deviceFactory,
-                             IServiceProvider serviceProvider)
+        public MainViewModel(IAlarmLogService alarmLogService,
+                             IServiceProvider serviceProvider,
+                             DeviceManagerService deviceManager)
         {
             _alarmLogService = alarmLogService;
-            _deviceFactory = deviceFactory;
             _serviceProvider = serviceProvider;
+            _deviceManager = deviceManager;
 
-            AddDevice();
+            // 启动时创建第一个设备
+            _deviceManager.AddDevice();
             _ = LoadAlarmHistoryAsync();
+            _deviceManager.DeviceListChanged += async () => await LoadAlarmHistoryAsync();
 
-            // 监听菜单切换 → 换页面
             Navigation.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == nameof(Navigation.SelectedMenuItem))
@@ -58,7 +58,6 @@ namespace IndustrialMonitor.ViewModels
                 }
             };
 
-            // 默认选中实时监控
             Navigation.SelectedMenuItem = Navigation.MenuItems.FirstOrDefault(m => m.Key == "Monitoring");
         }
 
@@ -90,25 +89,13 @@ namespace IndustrialMonitor.ViewModels
             OnPropertyChanged(nameof(IsMonitoringVisible));
         }
 
-        [RelayCommand]
-        private void AddDevice()
-        {
-            var device = _deviceFactory();
-            device.DeviceId = $"DEV-{_deviceCounter++:D3}";
-            device.OnAlarmSaved = () => { _ = LoadAlarmHistoryAsync(); };
-            Devices.Add(device);
-            SelectedDevice = device;
-        }
+        public bool IsMonitoringVisible => CurrentPage is null;
 
         [RelayCommand]
-        private void RemoveDevice(DeviceViewModel? device)
-        {
-            if (device == null) return;
-            device.StopCommand.Execute(null);
-            Devices.Remove(device);
-            if (SelectedDevice == device && Devices.Count > 0)
-                SelectedDevice = Devices[0];
-        }
+        private void AddDevice() => _deviceManager.AddDevice();
+
+        [RelayCommand]
+        private void RemoveDevice(DeviceViewModel? device) => _deviceManager.RemoveDevice(device);
 
         private async Task LoadAlarmHistoryAsync()
         {

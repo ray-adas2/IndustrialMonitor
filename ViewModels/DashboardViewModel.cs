@@ -1,7 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
 using IndustrialMonitor.Services;
-using System.Collections.ObjectModel;
 using System.Windows.Threading;
 
 namespace IndustrialMonitor.ViewModels;
@@ -14,7 +12,9 @@ public partial class DashboardViewModel : ObservableObject
     [ObservableProperty] private int _totalDevices;
     [ObservableProperty] private int _onlineDevices;
     [ObservableProperty] private int _alarmCount;
-    [ObservableProperty] private string _uptime = "—";
+    [ObservableProperty] private int _runningCount;
+    [ObservableProperty] private double _onlinePercent;
+    [ObservableProperty] private double _alarmPercent;
 
     public DashboardViewModel(DeviceManagerService deviceManager)
     {
@@ -30,6 +30,9 @@ public partial class DashboardViewModel : ObservableObject
     {
         TotalDevices = _deviceManager.TotalCount;
         OnlineDevices = _deviceManager.OnlineCount;
+        RunningCount = _deviceManager.RunningCount;
         AlarmCount = _deviceManager.AlarmCount;
+        OnlinePercent = TotalDevices > 0 ? (double)OnlineDevices / TotalDevices * 100 : 0;
+        AlarmPercent = TotalDevices > 0 ? (double)AlarmCount / TotalDevices * 100 : 0;
     }
 }

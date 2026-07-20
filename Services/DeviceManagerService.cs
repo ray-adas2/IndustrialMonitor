@@ -17,6 +17,7 @@ public class DeviceManagerService
 
     public int TotalCount => Devices.Count;
     public int OnlineCount => Devices.Count(d => d.IsRunning);
+    public int RunningCount => Devices.Count(d => d.IsRunning);
     public int AlarmCount => Devices.Count(d => d.IsAlarming);
 
     public event Action? DeviceListChanged;

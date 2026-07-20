@@ -74,6 +74,12 @@ namespace IndustrialMonitor.ViewModels
         public RectangularSection[] TemperatureSections { get; set; }
         public RectangularSection[] PressureSections { get; set; }
 
+        //图表坐标轴
+        public Axis[] TemperatureXAxes { get; set; }
+        public Axis[] TemperatureYAxes { get; set; }
+        public Axis[] PressureXAxes { get; set; }
+        public Axis[] PressureYAxes { get; set; }
+
         //状态属性(控制按钮可用状态)
         [ObservableProperty]
         [NotifyCanExecuteChangedFor(nameof(StartCommand))]
@@ -153,6 +159,16 @@ namespace IndustrialMonitor.ViewModels
                     }
                 }
             };
+
+            // 配置坐标轴
+            var xAxes = new Axis[] { new() { ShowSeparatorLines = false } };
+            var tempYAxes = new Axis[] { new() { Name = "°C", MinLimit = 50, MaxLimit = 100 } };
+            var pressYAxes = new Axis[] { new() { Name = "MPa", MinLimit = 1.5, MaxLimit = 3.0 } };
+            TemperatureXAxes = xAxes;
+            TemperatureYAxes = tempYAxes;
+            PressureXAxes = xAxes;
+            PressureYAxes = pressYAxes;
+
             // 🟢 订阅配置文件热重载回调
             _configMonitor.OnChange(OnConfigChanged);
         }
