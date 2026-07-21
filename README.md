@@ -1,272 +1,128 @@
-# IndustrialMonitor — 工业设备实时数据监控看板
+# IndustrialMonitor — 工业设备实时监控平台
 
-基于 .NET 8 + WPF 的工业设备实时监控系统，采用 **MVVM + 依赖注入 + Service 层**架构。核心聚焦**高频数据流下的 UI 渲染优化**和**报警引擎设计**，适用于工业上位机 / IoT 监控场景。
+基于 .NET 8 + WPF 的企业级工业设备监控控制台，采用 **MVVM + 依赖注入**架构，集成 LiveCharts2 实时图表、SQLite 数据持久化、基于角色的访问控制（RBAC）和配置热重载。
 
-## 功能
+---
 
-- **多设备管理**：动态添加 / 删除设备，TabControl 切换，每个设备独立监控
-- **高频数据模拟**：生产者-消费者模式，后台线程模拟每秒数据推送，10% 概率产生超标异常
-- **实时双通道折线图**：LiveCharts2 绑定 `ObservablePoint`，温度 / 压力独立曲线 + 阈值警戒虚线
-- **限流采样渲染**：`DispatcherTimer` 每 400ms 批量出队数据，滑动窗口限制 50 个点，防止 UI 卡顿
-- **报警引擎**：3 秒防抖状态机，报警灯呼吸闪烁动画，倒计时观察期显示
-- **SQLite 报警存储**：报警解除后自动写入，`DataGrid` 展示历史记录，参数化查询
-- **依赖注入**：`IServiceCollection` 容器管理依赖生命周期（Singleton / Transient），接口编程
-- **配置热重载**：`appsettings.json` + `IOptionsMonitor<T>`，运行时修改阈值 / 刷新间隔 / 滑动窗口立即生效
-- **报警灯呼吸动画**：WPF `Storyboard` + `DoubleAnimation`，DataTrigger 控制启停
+## 功能概览
+
+### 系统截图
+
+> 📸 请在此处添加系统截图（建议截图内容：登录界面、首页仪表盘、实时监控页、报警中心、用户管理页）
+
+<!-- 示例占位：
+![登录界面](screenshots/login.png)
+![首页总览](screenshots/dashboard.png)
+![实时监控](screenshots/monitoring.png)
+![报警中心](screenshots/alarms.png)
+![用户管理](screenshots/users.png)
+-->
+
+### 核心功能
+
+| 模块 | 功能 |
+|------|------|
+| **登录系统** | 用户名/密码验证，SHA256 密码哈希，角色分级（管理员 / 操作员 / 观察者） |
+| **首页仪表盘** | 设备统计卡片、在线率进度条、运行设备数、系统信息 |
+| **设备管理** | 设备列表 CRUD，运行状态与报警状态绿/红色标识 |
+| **实时监控** | 双通道 LiveCharts 折线图（温度 + 压力），阈值警戒虚线，3 秒防抖报警引擎，报警灯呼吸闪烁动画，多设备 TabControl 切换 |
+| **报警中心** | 按类型筛选，分页查询，颜色编码（温度红 / 压力蓝），阈值上下文显示 |
+| **历史记录** | 日期范围筛选，设备过滤，分页查询，报警统计摘要 |
+| **系统设置** | 监控参数配置（阈值、刷新间隔、滑动窗口），配置热重载，修改密码 |
+| **用户管理** | 管理员专属 — 查看用户列表，新增用户（Operator / Viewer），启用/禁用账户 |
+| **权限控制** | 管理员全功能，操作员无设备管理/设置/用户管理，观察者只读（操作按钮隐藏） |
+| **退出登录** | 侧边栏底部退出按钮，返回登录界面 |
+| **设备持久化** | 设备列表 JSON 文件保存，重启/重登录不丢失 |
+
+---
+
+## 技术栈
+
+| 技术 | 用途 |
+|------|------|
+| **WPF (.NET 8)** | 桌面 UI 框架 |
+| **CommunityToolkit.Mvvm** 8.4.2 | MVVM 源生成器：`[ObservableProperty]`、`[RelayCommand]` |
+| **LiveCharts2** 2.0.5 | 实时折线图渲染（SkiaSharp） |
+| **HandyControl** 3.5.1 | 企业级 UI 控件库（Card、全局样式） |
+| **Microsoft.Data.Sqlite** | SQLite 数据库（报警记录 + 用户账户） |
+| **Microsoft.Extensions.DependencyInjection** | DI 容器（Singleton / Transient 生命周期管理） |
+| **Microsoft.Extensions.Configuration** | `appsettings.json` 配置系统 + 热重载 |
+| **System.Text.Json** | JSON 序列化（设备持久化 + 配置写入） |
+
+---
 
 ## 项目架构
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│ App.xaml.cs (Composition Root)                              │
-│   ConfigurationBuilder → appsettings.json (reloadOnChange)  │
-│   ServiceCollection → DI Container                          │
-│     Singleton: IAlarmLogService → AlarmLogService           │
-│     Transient: IMockDataService → MockDataService           │
-│     Singleton: MainViewModel                                │
-│     Transient: DeviceViewModel (via Func<T> factory)        │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│ MainViewModel (设备管理器)                                    │
-│   ObservableCollection<DeviceViewModel> Devices             │
-│   ObservableCollection<AlarmRecord> AlarmHistory             │
-│   RelayCommand: AddDevice / RemoveDevice                    │
-│   OnAlarmSaved 回调解耦 ←→ DeviceViewModel                  │
-└──────────────┬──────────────────────────────────────────────┘
-               │ 1:N
-               ▼
-┌──────────────────────────────────────────────────────────────┐
-│ DeviceViewModel (单设备监控，每个设备一个实例)                  │
-│                                                              │
-│  后台线程（生产者）:                 UI 线程（消费者）:         │
-│  MockDataService.Start()            DispatcherTimer (400ms)  │
-│    └→ ConcurrentQueue.Enqueue        └→ TryDequeue 批量出队   │
-│       Thread.Sleep(500)                └→ ObservablePoint 图表 │
-│       (90%正常 + 10%异常)               └→ 滑动窗口 RemoveAt(0) │
-│                                         └→ 报警状态机          │
-│                                            └→ SQLite 写入     │
-│                                            └→ OnAlarmSaved?() │
-└──────────────────────────────────────────────────────────────┘
-```
-
-## 项目结构
-
-```
 IndustrialMonitor/
 ├── Models/
-│   ├── DeviceData.cs              # 设备数据点（普通 POCO）
-│   ├── AlarmRecord.cs             # 报警记录（SQLite 表映射）
-│   └── MonitorConfig.cs           # 配置强类型模型
+│   ├── DeviceData.cs              # 设备数据点（POCO）
+│   ├── AlarmRecord.cs             # 报警记录（SQLite 映射）
+│   ├── MonitorConfig.cs           # 配置强类型模型
+│   ├── NavMenuItem.cs             # 导航菜单项
+│   └── User.cs                    # 用户模型
 ├── Services/
 │   ├── IMockDataService.cs        # 数据模拟器接口
 │   ├── IAlarmLogService.cs        # 报警日志接口
-│   ├── MockDataService.cs         # 高频数据模拟实现
-│   └── AlarmLogService.cs         # SQLite 增删查实现
+│   ├── MockDataService.cs         # 高频数据模拟（生产者-消费者）
+│   ├── AlarmLogService.cs         # SQLite 报警存储
+│   ├── DeviceManagerService.cs    # 设备生命周期管理（Singleton）
+│   └── AuthService.cs             # 认证与权限服务（SHA256 + RBAC）
 ├── ViewModels/
-│   ├── DeviceViewModel.cs         # 单设备 ViewModel（361 行）
-│   └── MainViewModel.cs           # 设备管理器 ViewModel（90 行）
-├── MainWindow.xaml                # 主界面（5 行布局）
-├── MainWindow.xaml.cs             # 窗口入口（构造注入）
-├── App.xaml                       # 应用配置
-├── App.xaml.cs                    # DI 容器 + 配置加载
-└── appsettings.json               # 可热重载配置
+│   ├── MainViewModel.cs           # Shell 外壳（导航 + 设备管理 + 退出）
+│   ├── DeviceViewModel.cs         # 单设备监控（图表 + 报警引擎）
+│   ├── NavigationViewModel.cs     # 侧边栏菜单 + 角色过滤
+│   ├── LoginViewModel.cs          # 登录页逻辑
+│   ├── DashboardViewModel.cs      # 首页统计卡片（2s 刷新）
+│   ├── MonitoringViewModel.cs     # 实时监控页（分页 + 权限）
+│   ├── AlarmCenterViewModel.cs    # 报警中心（筛选 + 分页）
+│   ├── DeviceManagementViewModel.cs # 设备列表管理
+│   ├── HistoryViewModel.cs        # 历史查询（日期筛选 + 分页）
+│   ├── SettingsViewModel.cs       # 系统设置 + 修改密码
+│   └── UserManagementViewModel.cs # 用户管理（管理员专用）
+├── Views/
+│   ├── LoginWindow.xaml            # 登录窗口
+│   ├── SidebarView.xaml            # 深色侧边栏（220px）
+│   ├── HeaderView.xaml             # 顶部状态栏（面包屑 + 用户 + 时钟）
+│   ├── DashboardView.xaml          # 首页仪表盘（HandyControl Card）
+│   ├── MonitoringView.xaml         # 实时监控（图表 + 分页报警列表）
+│   ├── AlarmCenterView.xaml        # 报警中心（筛选 + 分页 DataGrid）
+│   ├── DeviceManagementView.xaml   # 设备管理（ListView + 状态标识）
+│   ├── HistoryView.xaml            # 历史记录（日期选择 + DataGrid）
+│   ├── SettingsView.xaml           # 系统设置（参数表单 + 修改密码）
+│   └── UserManagementView.xaml     # 用户管理（用户列表 + 新增表单）
+├── Converters/
+│   ├── AlarmTypeColorConverter.cs  # 报警类型 → 颜色
+│   ├── AlarmThresholdConverter.cs  # 报警类型 + 阈值 → 上下文显示
+│   └── ActiveButtonTextConverter.cs # IsActive → 按钮文字
+├── App.xaml + App.xaml.cs          # DI 容器启动 + 登录流程
+├── MainWindow.xaml                 # Shell 外壳布局
+└── appsettings.json                # 可热重载配置
 ```
 
-## 关键技术实现
+---
 
-### 生产者-消费者 + 限流渲染
+## 权限矩阵
 
-解决「每秒 200 条数据冲击 UI 线程」的核心架构：
+| 角色 | 首页 | 监控 | 报警 | 历史 | 设备管理 | 设置 | 用户管理 | 操作设备 |
+|------|:--:|:--:|:--:|:--:|:--:|:--:|:--:|:--:|
+| **Admin** | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Operator** | ✅ | ✅ | ✅ | ✅ | ❌ | ❌ | ❌ | ✅ |
+| **Viewer** | ✅ | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ | ❌ |
 
-```csharp
-// === 生产者（后台线程）===
-// MockDataService.Start():
-Task.Run(() => {
-    while (_isRunning)
-    {
-        _dataQueue.Enqueue(new DeviceData { ... });
-        Thread.Sleep(500);  // 每 500ms 一条
-    }
-});
+---
 
-// === 消费者（UI 线程）===
-// DeviceViewModel.OnTimerTick() — DispatcherTimer 每 400ms 触发：
-while (_dataService.DataQueue.TryDequeue(out var data))
-{
-    DataPoints.Add(data);                              // 文本摘要数据源
-    _tempPoints.Add(new ObservablePoint(...));          // 图表数据源
-    // 更新本批次最大值
-}
-// 滑动窗口：只保留最近 50 个点
-while (DataPoints.Count > 50)
-    DataPoints.RemoveAt(0);
-```
+## 默认账户
 
-`ConcurrentQueue` 作为线程安全缓冲区隔离数据生产与 UI 消费，`DispatcherTimer` 按固定频率批量取数，确保 UI 帧率稳定。
+| 用户名 | 密码 | 角色 |
+|--------|------|------|
+| `admin` | `admin123` | 管理员 |
+| `operator` | `operator123` | 操作员 |
+| `viewer` | `viewer123` | 观察者 |
 
-### 报警引擎 3 秒防抖状态机
+> 首次启动自动创建默认账户，密码 SHA256 哈希存储于 `users.db`。
 
-```
-正常 ──超标发生──→ 报警 (IsAlarming = true, 记录会话起点)
-                    │
-                    ├← 持续超标 → 保持报警，追踪峰值
-                    │
-                    └← 恢复正常 → 启动观察期 (3 秒)
-                                    │
-                                    ├ 3 秒内再次超标 → 回到报警状态
-                                    └ 3 秒无超标 → 解除报警 → 写入 SQLite
-```
-
-```csharp
-if (maxTempInBatch > threshold || maxPressInBatch > threshold)
-{
-    _lastViolationTime = DateTime.Now;
-    if (!IsAlarming)  // 首次触发：记录会话起点
-    {
-        _currentAlarmStartTime = DateTime.Now;
-        _currentAlarmMaxTemp = _currentAlarmMaxPress = 0;
-        IsAlarming = true;
-    }
-    // 持续追踪会话期间峰值
-    _currentAlarmMaxTemp = Math.Max(_currentAlarmMaxTemp, maxTempInBatch);
-}
-else if (IsAlarming)
-{
-    if ((DateTime.Now - _lastViolationTime).TotalSeconds >= 3.0)
-    {
-        IsAlarming = false;
-        await SaveCurrentAlarmLogAsync();  // 解除时异步写 SQLite
-    }
-    else
-        AlarmMessage = $"观察中... (剩余 {3.0 - elapsed:F1} 秒)";
-}
-```
-
-### 依赖注入 + 工厂模式
-
-```csharp
-// App.xaml.cs — Composition Root
-var services = new ServiceCollection();
-services.Configure<MonitorConfig>(config.GetSection("MonitorConfig"));
-services.AddSingleton<IAlarmLogService, AlarmLogService>();
-services.AddTransient<IMockDataService, MockDataService>();
-services.AddSingleton<MainViewModel>();
-services.AddTransient<DeviceViewModel>();
-// Func<T> 工厂：MainViewModel 动态创建设备而不直接依赖 DI 容器
-services.AddSingleton<Func<DeviceViewModel>>(
-    provider => () => provider.GetRequiredService<DeviceViewModel>());
-
-// MainViewModel 通过构造函数接收工厂
-public MainViewModel(Func<DeviceViewModel> deviceFactory) { ... }
-
-// 运行时动态创建
-private void AddDevice()
-{
-    var device = _deviceFactory();  // DI 自动注入所有依赖
-    Devices.Add(device);
-}
-```
-
-### 配置热重载
-
-```csharp
-// 注册 IOptionsMonitor（支持 reloadOnChange）
-services.Configure<MonitorConfig>(config.GetSection("MonitorConfig"));
-
-// DeviceViewModel 注入 IOptionsMonitor<MonitorConfig>
-public double TemperatureThreshold =>
-    _configMonitor.CurrentValue.TemperatureThreshold;
-
-// 订阅文件变化 → 实时更新 UI
-_configMonitor.OnChange(newConfig =>
-{
-    Application.Current?.Dispatcher.Invoke(() =>
-    {
-        _timer.Interval = TimeSpan.FromMilliseconds(newConfig.RefreshIntervalMs);
-        TemperatureSections[0].Yi = newConfig.TemperatureThreshold;  // 图表阈值线移动
-        OnPropertyChanged(nameof(TemperatureThreshold));              // XAML 绑定刷新
-    });
-});
-```
-
-为了开发时编辑项目源文件即生效，同时监视两个路径：
-```csharp
-.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-.AddJsonFile("../../../appsettings.json", optional: true, reloadOnChange: true)
-```
-
-### LiveCharts2 图表集成
-
-```csharp
-// 折线图配置
-TemperatureSeries = new ISeries[] {
-    new LineSeries<ObservablePoint> {
-        Values = _tempPoints,                               // ObservableCollection 绑定
-        Stroke = new SolidColorPaint(SKColors.Red, 2),      // 红色，2px
-        GeometrySize = 0,                                   // 隐藏数据点圆球（性能优化）
-        Fill = new SolidColorPaint(SKColors.Red.WithAlpha(20))  // 半透明填充
-    }
-};
-
-// 阈值警戒虚线
-TemperatureSections = new RectangularSection[] {
-    new RectangularSection {
-        Yi = 85.0, Yj = 85.0,
-        Stroke = new SolidColorPaint(SKColors.Red, 2) {
-            PathEffect = new DashEffect(new float[] { 5, 5 })  // 虚线
-        }
-    }
-};
-```
-
-### TabControl + ContentTemplate 绑定
-
-```xml
-<TabControl ItemsSource="{Binding Devices}" SelectedItem="{Binding SelectedDevice}">
-    <TabControl.ItemTemplate>
-        <DataTemplate>
-            <TextBlock Text="{Binding DeviceId}"/>  <!-- Tab 标签 -->
-        </DataTemplate>
-    </TabControl.ItemTemplate>
-    <TabControl.ContentTemplate>
-        <DataTemplate>
-            <!-- DataContext 自动指向当前 DeviceViewModel，无需 SelectedDevice. 前缀 -->
-            <lvc:CartesianChart Series="{Binding TemperatureSeries}"
-                                Sections="{Binding TemperatureSections}"/>
-        </DataTemplate>
-    </TabControl.ContentTemplate>
-</TabControl>
-```
-
-### SQLite 参数化查询
-
-```csharp
-// 建表（构造函数自动执行）
-var sql = @"CREATE TABLE IF NOT EXISTS AlarmRecords (
-    Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    DeviceId TEXT NOT NULL, AlarmType TEXT NOT NULL,
-    MaxValue REAL NOT NULL, Threshold REAL NOT NULL,
-    StartTime TEXT NOT NULL, EndTime TEXT NOT NULL);";
-
-// 参数化插入（防 SQL 注入）
-command.Parameters.AddWithValue("$deviceId", record.DeviceId);
-command.Parameters.AddWithValue("$startTime", record.StartTime.ToString("o"));
-```
-
-## 依赖
-
-| 包 | 版本 | 用途 |
-|----|------|------|
-| `CommunityToolkit.Mvvm` | 8.4.2 | MVVM 基础设施 |
-| `LiveChartsCore.SkiaSharpView.WPF` | 2.0.5 | 实时折线图 |
-| `Microsoft.Data.Sqlite` | 10.0.10 | SQLite 数据库 |
-| `Microsoft.Extensions.DependencyInjection` | 10.0.10 | DI 容器 |
-| `Microsoft.Extensions.Configuration.Json` | 10.0.10 | JSON 配置读取 |
-| `Microsoft.Extensions.Configuration.Binder` | 10.0.10 | 配置绑定到对象 |
-| `Microsoft.Extensions.Options` | 10.0.10 | IOptionsMonitor 热重载 |
-| `Microsoft.Extensions.Options.ConfigurationExtensions` | 10.0.10 | services.Configure<T> |
+---
 
 ## 配置
 
@@ -284,6 +140,8 @@ command.Parameters.AddWithValue("$startTime", record.StartTime.ToString("o"));
 }
 ```
 
+---
+
 ## 运行
 
 ```bash
@@ -291,3 +149,5 @@ dotnet run
 ```
 
 或打开 `IndustrialMonitor.sln`，在 Visual Studio / Rider 中按 F5。
+
+首次启动自动创建 `users.db`（三个默认账户）和 `devices.json`（设备列表持久化）。
