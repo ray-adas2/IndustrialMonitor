@@ -8,8 +8,6 @@
 
 ### 系统截图
 
-### 系统截图
-
 ![登录界面](screenshots/login.png)
 ![首页总览](screenshots/1.png)
 ![设备管理](screenshots/2.png)
