@@ -1,39 +1,66 @@
 <UserControl x:Class="IndustrialMonitor.Views.SettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <StackPanel>
-        <TextBlock Text="⚙ 系统设置" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,16"/>
-        <Border Background="White" CornerRadius="8" Padding="24">
-            <StackPanel>
-                <TextBlock Text="监控参数配置" FontSize="16" FontWeight="Bold" Foreground="#334155" Margin="0,0,0,16"/>
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="40"/><RowDefinition Height="40"/><RowDefinition Height="40"/>
-                        <RowDefinition Height="40"/><RowDefinition Height="40"/>
-                    </Grid.RowDefinitions>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="180"/><ColumnDefinition Width="200"/>
-                    </Grid.ColumnDefinitions>
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+            <TextBlock Text="⚙ 系统设置" FontSize="24" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,16"/>
 
-                    <TextBlock Grid.Row="0" Grid.Column="0" Text="温度阈值 (°C)" VerticalAlignment="Center" Foreground="#475569"/>
-                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TemperatureThreshold, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+            <!-- 监控参数配置 -->
+            <Border Background="White" CornerRadius="8" Padding="24" Margin="0,0,0,16">
+                <StackPanel>
+                    <TextBlock Text="监控参数配置" FontSize="16" FontWeight="Bold" Foreground="#334155" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/><RowDefinition Height="40"/><RowDefinition Height="40"/>
+                            <RowDefinition Height="40"/><RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="180"/><ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="温度阈值 (°C)" VerticalAlignment="Center" Foreground="#475569"/>
+                        <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding TemperatureThreshold, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="压力阈值 (MPa)" VerticalAlignment="Center" Foreground="#475569"/>
+                        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PressureThreshold, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="刷新间隔 (ms)" VerticalAlignment="Center" Foreground="#475569"/>
+                        <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RefreshIntervalMs, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="滑动窗口大小" VerticalAlignment="Center" Foreground="#475569"/>
+                        <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SlidingWindowSize, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="4" Grid.Column="0" Text="报警防抖 (秒)" VerticalAlignment="Center" Foreground="#475569"/>
+                        <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding AlarmDebounceSeconds, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
+                    </Grid>
+                    <Button Content="保存配置" Command="{Binding SaveCommand}"
+                            Background="#3B82F6" Foreground="White" Padding="20,8"
+                            BorderThickness="0" Margin="0,12,0,0" HorizontalAlignment="Left" Height="34"/>
+                </StackPanel>
+            </Border>
 
-                    <TextBlock Grid.Row="1" Grid.Column="0" Text="压力阈值 (MPa)" VerticalAlignment="Center" Foreground="#475569"/>
-                    <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding PressureThreshold, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
-
-                    <TextBlock Grid.Row="2" Grid.Column="0" Text="刷新间隔 (ms)" VerticalAlignment="Center" Foreground="#475569"/>
-                    <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding RefreshIntervalMs, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
-
-                    <TextBlock Grid.Row="3" Grid.Column="0" Text="滑动窗口大小" VerticalAlignment="Center" Foreground="#475569"/>
-                    <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding SlidingWindowSize, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
-
-                    <TextBlock Grid.Row="4" Grid.Column="0" Text="报警防抖 (秒)" VerticalAlignment="Center" Foreground="#475569"/>
-                    <TextBox Grid.Row="4" Grid.Column="1" Text="{Binding AlarmDebounceSeconds, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center"/>
-                </Grid>
-                <Button Content="保存到配置文件" Command="{Binding SaveCommand}"
-                        Background="#3B82F6" Foreground="White" Padding="20,8"
-                        BorderThickness="0" Margin="0,16,0,0" HorizontalAlignment="Left"/>
-            </StackPanel>
-        </Border>
-    </StackPanel>
+            <!-- 修改密码 -->
+            <Border Background="White" CornerRadius="8" Padding="24">
+                <StackPanel>
+                    <TextBlock Text="🔒 修改密码" FontSize="16" FontWeight="Bold" Foreground="#334155" Margin="0,0,0,12"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="40"/><RowDefinition Height="40"/><RowDefinition Height="40"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"/><ColumnDefinition Width="200"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="旧密码" VerticalAlignment="Center" Foreground="#475569"/>
+                        <PasswordBox Grid.Row="0" Grid.Column="1" x:Name="OldPwdBox" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="新密码" VerticalAlignment="Center" Foreground="#475569"/>
+                        <PasswordBox Grid.Row="1" Grid.Column="1" x:Name="NewPwdBox" VerticalContentAlignment="Center"/>
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="确认新密码" VerticalAlignment="Center" Foreground="#475569"/>
+                        <PasswordBox Grid.Row="2" Grid.Column="1" x:Name="ConfirmPwdBox" VerticalContentAlignment="Center"/>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <Button Content="修改密码" Click="ChangePasswordButton_Click"
+                                Background="#1E293B" Foreground="White" Padding="20,8"
+                                BorderThickness="0" Height="34"/>
+                        <TextBlock Text="{Binding PasswordMessage}" FontSize="13" Foreground="#64748B"
+                                   VerticalAlignment="Center" Margin="16,0,0,0"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

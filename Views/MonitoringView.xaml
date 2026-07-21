@@ -7,6 +7,7 @@
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1000">
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <Storyboard x:Key="AlarmFlashing">
             <DoubleAnimation Storyboard.TargetProperty="Opacity"
                              From="1.0" To="0.2" Duration="0:0:0.5"
@@ -33,17 +34,21 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <Button Content="▶ 开始监控" Command="{Binding SelectedDevice.StartCommand}"
                             Width="110" Height="30" Margin="0,0,6,0"
-                            Background="#10B981" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                            Background="#10B981" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Visibility="{Binding CanModify, Converter={StaticResource BoolToVis}}"/>
                     <Button Content="⏹ 停止监控" Command="{Binding SelectedDevice.StopCommand}"
                             Width="110" Height="30" Margin="0,0,6,0"
-                            Background="#EF4444" Foreground="White" FontWeight="Bold" BorderThickness="0"/>
+                            Background="#EF4444" Foreground="White" FontWeight="Bold" BorderThickness="0"
+                            Visibility="{Binding CanModify, Converter={StaticResource BoolToVis}}"/>
                     <Button Content="➕ 添加设备" Command="{Binding AddDeviceCommand}"
                             Background="#3B82F6" Foreground="White" FontWeight="Bold"
-                            Padding="10,4" Margin="6,0,5,0" BorderThickness="0"/>
+                            Padding="10,4" Margin="6,0,5,0" BorderThickness="0"
+                            Visibility="{Binding CanModify, Converter={StaticResource BoolToVis}}"/>
                     <Button Content="✕ 移除设备" Command="{Binding RemoveDeviceCommand}"
                             CommandParameter="{Binding SelectedDevice}"
                             Background="#6B7280" Foreground="White" FontWeight="Bold"
-                            Padding="10,4" BorderThickness="0"/>
+                            Padding="10,4" BorderThickness="0"
+                            Visibility="{Binding CanModify, Converter={StaticResource BoolToVis}}"/>
                 </StackPanel>
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <Ellipse Width="8" Height="8" Margin="0,0,6,0">

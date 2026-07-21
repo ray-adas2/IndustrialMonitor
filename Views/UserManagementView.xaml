@@ -1,0 +1,117 @@
+<UserControl x:Class="IndustrialMonitor.Views.UserManagementView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <!-- 左：用户列表 -->
+        <Border Grid.Column="0" Background="White" CornerRadius="8" Padding="16" Margin="0,0,8,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,12">
+                    <TextBlock Text="👥 用户列表" FontSize="16" FontWeight="Bold" Foreground="#1E293B"/>
+                    <Button Content="🔄 刷新" Command="{Binding RefreshCommand}" Margin="12,0,0,0"
+                            Background="#3B82F6" Foreground="White" Padding="8,3" BorderThickness="0" FontSize="11"/>
+                </StackPanel>
+                <DataGrid Grid.Row="1" ItemsSource="{Binding Users}" AutoGenerateColumns="False"
+                          IsReadOnly="True" GridLinesVisibility="Horizontal"
+                          Background="Transparent" BorderThickness="0">
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="用户名" Binding="{Binding Username}" Width="120"/>
+                        <DataGridTextColumn Header="角色" Binding="{Binding Role}" Width="100">
+                            <DataGridTextColumn.ElementStyle>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </Style>
+                            </DataGridTextColumn.ElementStyle>
+                        </DataGridTextColumn>
+                        <DataGridTemplateColumn Header="状态" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="8" Height="8" Margin="0,0,4,0">
+                                            <Ellipse.Style>
+                                                <Style TargetType="Ellipse">
+                                                    <Setter Property="Fill" Value="#10B981"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Fill" Value="#D1D5DB"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Ellipse.Style>
+                                        </Ellipse>
+                                        <TextBlock>
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Text" Value="活跃"/>
+                                                    <Setter Property="Foreground" Value="#10B981"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Text" Value="禁用"/>
+                                                            <Setter Property="Foreground" Value="#94A3B8"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="操作" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Button Content="{Binding IsActive, Converter={StaticResource ActiveButtonText}}"
+                                            Command="{Binding DataContext.ToggleUserCommand,
+                                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Padding="6,3" FontSize="11" BorderThickness="0">
+                                        <Button.Style>
+                                            <Style TargetType="Button">
+                                                <Setter Property="Background" Value="#EF4444"/>
+                                                <Setter Property="Foreground" Value="White"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                        <Setter Property="Background" Value="#10B981"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </Grid>
+        </Border>
+
+        <!-- 右：添加用户表单 -->
+        <Border Grid.Column="1" Background="White" CornerRadius="8" Padding="20">
+            <StackPanel>
+                <TextBlock Text="➕ 新增用户" FontSize="16" FontWeight="Bold" Foreground="#1E293B" Margin="0,0,0,16"/>
+                <TextBlock Text="用户名" FontSize="13" Foreground="#475569" Margin="0,0,0,4"/>
+                <TextBox Text="{Binding NewUsername}" FontSize="14" Padding="8,6" Margin="0,0,0,12"
+                         Background="#F8FAFC" BorderBrush="#CBD5E1"/>
+                <TextBlock Text="密码" FontSize="13" Foreground="#475569" Margin="0,0,0,4"/>
+                <PasswordBox x:Name="NewUserPassword" FontSize="14" Padding="8,6" Margin="0,0,0,12"
+                             Background="#F8FAFC" BorderBrush="#CBD5E1"/>
+                <TextBlock Text="角色" FontSize="13" Foreground="#475569" Margin="0,0,0,4"/>
+                <ComboBox ItemsSource="{Binding Roles}" SelectedItem="{Binding NewRole}"
+                          FontSize="14" Padding="4" Margin="0,0,0,16"/>
+                <Button Content="创建用户" Click="AddUserButton_Click"
+                        Background="#1E293B" Foreground="White" FontWeight="Bold"
+                        Height="36" BorderThickness="0"/>
+                <TextBlock Text="{Binding StatusMessage}" FontSize="12" Foreground="#64748B"
+                           TextWrapping="Wrap" Margin="0,12,0,0"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

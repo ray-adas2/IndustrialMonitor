@@ -22,11 +22,16 @@ public partial class MonitoringViewModel : ObservableObject
     [ObservableProperty] private string _pageInfo = "第 0/0 页";
 
     public int RunningCount => _deviceManager.RunningCount;
+    public bool CanModify => _authService.CurrentUser?.Role is "Admin" or "Operator";
 
-    public MonitoringViewModel(DeviceManagerService deviceManager, IAlarmLogService alarmLogService)
+    private readonly AuthService _authService;
+
+    public MonitoringViewModel(DeviceManagerService deviceManager, IAlarmLogService alarmLogService,
+                               AuthService authService)
     {
         _deviceManager = deviceManager;
         _alarmLogService = alarmLogService;
+        _authService = authService;
         SelectedDevice = Devices.FirstOrDefault();
         _ = LoadAlarmHistoryAsync();
         _deviceManager.DeviceListChanged += () =>

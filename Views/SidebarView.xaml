@@ -45,9 +45,10 @@
     <Border Background="#0F172A">
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>  <!-- 平台 Logo -->
-                <RowDefinition Height="*"/>     <!-- 菜单列表 -->
-                <RowDefinition Height="Auto"/>  <!-- 底部版本信息 -->
+                <RowDefinition Height="Auto"/>  <!-- Logo -->
+                <RowDefinition Height="*"/>     <!-- 菜单 -->
+                <RowDefinition Height="Auto"/>  <!-- 退出按钮 -->
+                <RowDefinition Height="Auto"/>  <!-- 版本信息 -->
             </Grid.RowDefinitions>
 
             <!-- 平台 Logo -->
@@ -68,8 +69,17 @@
                      BorderThickness="0"
                      SelectionMode="Single"/>
 
+            <!-- 退出登录按钮 -->
+            <Border Grid.Row="2" Padding="16,0" Margin="0,12,0,0">
+                <Button Content="🚪 退出登录" Height="34"
+                        Background="#EF4444" Foreground="White" FontSize="13" FontWeight="Bold"
+                        BorderThickness="0" Cursor="Hand"
+                        Command="{Binding DataContext.LogoutCommand,
+                            RelativeSource={RelativeSource AncestorType=Window}}"/>
+            </Border>
+
             <!-- 底部信息 -->
-            <Border Grid.Row="2" Padding="16,12" Margin="0,8,0,0">
+            <Border Grid.Row="3" Padding="16,12" Margin="0,8,0,0">
                 <StackPanel>
                     <Line Stroke="#334155" X1="0" Y1="0" X2="1" Y2="0"
                           Stretch="Fill" Margin="0,0,0,10"/>

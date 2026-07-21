@@ -15,6 +15,7 @@
             <!-- 自定义转换器 -->
             <conv:AlarmTypeColorConverter x:Key="AlarmTypeColor"/>
             <conv:AlarmThresholdConverter x:Key="AlarmThreshold"/>
+            <conv:ActiveButtonTextConverter x:Key="ActiveButtonText"/>
 
             <!-- ViewModel → View 映射 -->
             <DataTemplate DataType="{x:Type vm:DashboardViewModel}">
@@ -34,6 +35,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
                 <views:SettingsView/>
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:UserManagementViewModel}">
+                <views:UserManagementView/>
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>

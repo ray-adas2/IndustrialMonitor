@@ -11,9 +11,13 @@ obj/
 
 # SQLite 数据库文件（运行时生成）
 *.db
+users.db
 
 # VS 临时生成文件
 *_wpftmp.*
+
+# 运行时持久化文件
+devices.json
 
 # 个人复习文档（不上传）
 项目复习总结.md

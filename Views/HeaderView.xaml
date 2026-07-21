@@ -8,30 +8,30 @@
     <Border Background="#FFFFFF" BorderBrush="#E2E8F0" BorderThickness="0,0,0,1">
         <Grid Margin="24,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>  <!-- 面包屑 -->
+                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>  <!-- 右侧信息 -->
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <!-- 面包屑导航 -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <TextBlock Text="{Binding Breadcrumb}" FontSize="13"
-                           Foreground="#64748B" VerticalAlignment="Center"/>
-            </StackPanel>
+            <!-- 面包屑 -->
+            <TextBlock Grid.Column="0" Text="{Binding Breadcrumb}" FontSize="13"
+                       Foreground="#64748B" VerticalAlignment="Center"/>
 
-            <!-- 右侧状态信息 -->
+            <!-- 右侧信息 -->
             <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
-                <!-- 系统状态指示灯 -->
+                <!-- 系统状态 -->
                 <Ellipse Width="8" Height="8" Fill="#10B981" Margin="0,0,6,0"/>
-                <TextBlock Text="系统运行正常" FontSize="12" Foreground="#64748B"
-                           Margin="0,0,20,0" VerticalAlignment="Center"/>
+                <TextBlock Text="系统正常" FontSize="12" Foreground="#64748B" Margin="0,0,16,0"/>
 
-                <!-- 分隔线 -->
-                <Border Width="1" Height="20" Background="#E2E8F0" Margin="0,0,16,0"/>
+                <TextBlock Text="👤" FontSize="12" Margin="0,0,4,0"/>
+                <TextBlock Text="{Binding CurrentUserName}" FontSize="12" Foreground="#1E293B" FontWeight="SemiBold" Margin="0,0,4,0"/>
+                <Border Background="#E2E8F0" CornerRadius="4" Padding="6,2" Margin="4,0,12,0">
+                    <TextBlock Text="{Binding CurrentUserRole}" FontSize="10" Foreground="#475569"/>
+                </Border>
 
-                <!-- 当前时间 -->
+                <!-- 时间 -->
                 <TextBlock x:Name="ClockText" Text="2026-07-20 14:30:00" FontSize="12"
-                           Foreground="#64748B" VerticalAlignment="Center"/>
+                           Foreground="#94A3B8" Margin="4,0"/>
             </StackPanel>
         </Grid>
     </Border>
