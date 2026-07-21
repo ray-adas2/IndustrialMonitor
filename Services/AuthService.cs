@@ -148,6 +148,17 @@ public class AuthService
         cmd.ExecuteNonQuery();
     }
 
+    public void DeleteUser(int userId, string role)
+    {
+        if (role == "Admin")
+            throw new InvalidOperationException("管理员账户不可删除");
+        using var conn = new SqliteConnection(_connectionString);
+        conn.Open();
+        using var cmd = new SqliteCommand("DELETE FROM Users WHERE Id = $id", conn);
+        cmd.Parameters.AddWithValue("$id", userId);
+        cmd.ExecuteNonQuery();
+    }
+
     public void SetUserActive(int userId, bool isActive)
     {
         using var conn = new SqliteConnection(_connectionString);

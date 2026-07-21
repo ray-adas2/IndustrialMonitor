@@ -65,9 +65,10 @@
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>
-                        <DataGridTemplateColumn Header="操作" Width="80">
+                        <DataGridTemplateColumn Header="操作" Width="120">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
                                     <Button Content="{Binding IsActive, Converter={StaticResource ActiveButtonText}}"
                                             Command="{Binding DataContext.ToggleUserCommand,
                                                 RelativeSource={RelativeSource AncestorType=DataGrid}}"
@@ -85,6 +86,13 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
+                                    <Button Content="删除"
+                                            Command="{Binding DataContext.DeleteUserCommand,
+                                                RelativeSource={RelativeSource AncestorType=DataGrid}}"
+                                            CommandParameter="{Binding}"
+                                            Padding="6,3" FontSize="11" BorderThickness="0"
+                                            Background="#EF4444" Foreground="White" Margin="4,0,0,0"/>
+                                    </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
                         </DataGridTemplateColumn>

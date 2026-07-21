@@ -68,6 +68,32 @@ public partial class UserManagementViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private void DeleteUser(User? user)
+    {
+        if (user is null) return;
+        if (user.Role == "Admin")
+        {
+            StatusMessage = "管理员账户不可删除";
+            return;
+        }
+        if (user.Id == _authService.CurrentUser?.Id)
+        {
+            StatusMessage = "不能删除当前登录用户";
+            return;
+        }
+        try
+        {
+            _authService.DeleteUser(user.Id, user.Role);
+            StatusMessage = $"用户 {user.Username} 已删除";
+            LoadUsers();
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = $"删除失败: {ex.Message}";
+        }
+    }
+
+    [RelayCommand]
     private void Refresh() => LoadUsers();
 
     private void LoadUsers()
