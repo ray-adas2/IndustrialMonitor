@@ -129,6 +129,18 @@ namespace IndustrialMonitor.ViewModels
             var loginWindow = App.ServiceProvider.GetRequiredService<Views.LoginWindow>();
             if (loginWindow.ShowDialog() == true)
             {
+                // 🟢 修复：登录成功后刷新用户相关的绑定属性
+                OnPropertyChanged(nameof(CurrentUserName));
+                OnPropertyChanged(nameof(CurrentUserRole));
+                OnPropertyChanged(nameof(IsViewer));
+                OnPropertyChanged(nameof(CanModify));
+
+                // 🟢 按新用户角色重新过滤菜单
+                Navigation.ApplyRoleFilter(_authService);
+
+                // 🟢 重置导航到默认页面
+                Navigation.SelectedMenuItem = Navigation.MenuItems.FirstOrDefault();
+
                 Application.Current.ShutdownMode = ShutdownMode.OnLastWindowClose;
                 var mainWindow = App.ServiceProvider.GetRequiredService<MainWindow>();
                 mainWindow.Show();
