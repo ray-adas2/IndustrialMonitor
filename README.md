@@ -150,3 +150,9 @@ dotnet run
 或打开 `IndustrialMonitor.sln`，在 Visual Studio / Rider 中按 F5。
 
 首次启动自动创建 `users.db`（三个默认账户）和 `devices.json`（设备列表持久化）。
+
+---
+
+## 自述
+
+本项目是我在学习WPF过程中，结合Claude Code共同开发的程序，项目可能存在我尚未发现和解决的问题。本人还在持续学习中，出现错误请不要见怪，在这里，由衷的感谢你的阅读，谢谢！
