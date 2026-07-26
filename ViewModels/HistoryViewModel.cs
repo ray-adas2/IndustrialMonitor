@@ -31,7 +31,13 @@ public partial class HistoryViewModel : ObservableObject
         _ = LoadAsync();
     }
 
-    [RelayCommand] private async Task Refresh() => await LoadAsync();
+    [RelayCommand]
+    private async Task Refresh()
+    {
+        _currentPage = 0;
+        SelectedDeviceFilter = "全部";
+        await LoadAsync();
+    }
 
     [RelayCommand]
     private async Task Query()
@@ -87,6 +93,11 @@ public partial class HistoryViewModel : ObservableObject
             DeviceFilters.Clear();
             DeviceFilters.Add("全部");
             foreach (var id in deviceIds) DeviceFilters.Add(id);
+
+            // 🟢 修复：重建 DeviceFilters 后恢复筛选条件，防止 ComboBox 绑定把 SelectedDeviceFilter 清为 null
+            if (!DeviceFilters.Contains(SelectedDeviceFilter ?? ""))
+                SelectedDeviceFilter = "全部";
+
             ApplyFilters();
         });
     }
