@@ -96,7 +96,7 @@ namespace IndustrialMonitor.ViewModels
             _alarmLogService = alarmLogService;
             _configMonitor = configMonitor;
 
-            //初始化定时器：告诉它每隔 400 毫秒在 UI 线程上弹起一次
+            //初始化定时器：告诉它每隔XXX毫秒在 UI 线程上弹起一次
             _timer = new DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(_configMonitor.CurrentValue.RefreshIntervalMs)
@@ -154,7 +154,7 @@ namespace IndustrialMonitor.ViewModels
                     Yj = PressureThreshold,
                     Stroke = new SolidColorPaint(SKColors.DarkOrange, 2)
                     {
-                        // 🟢 改用 LiveCharts 自带的 DashEffect
+                        //改用 LiveCharts 自带的 DashEffect
                         PathEffect = new DashEffect(new float[] { 5, 5 })
                     }
                 }
@@ -232,7 +232,7 @@ namespace IndustrialMonitor.ViewModels
             double maxTempInBatch = 0;
             double maxPressInBatch = 0;
 
-            // 🟢 每次 Tick 自动拿最新的 CurrentValue
+            //每次 Tick 自动拿最新的 CurrentValue
             var currentConfig = _configMonitor.CurrentValue;
 
             while (_dataService.DataQueue.TryDequeue(out var data))
@@ -299,7 +299,7 @@ namespace IndustrialMonitor.ViewModels
             }
             else
             {
-                // 如果当前批次没有超标数据，检查是否处于“报警状态中”
+                //如果当前批次没有超标数据，检查是否处于“报警状态中”
                 if (IsAlarming)
                 {
                     var secondsSinceLastViolation = (DateTime.Now - _lastViolationTime).TotalSeconds;
@@ -314,12 +314,12 @@ namespace IndustrialMonitor.ViewModels
                         //异步组装日志写入SQLite
                         await SaveCurrentAlarmLogAsync();
 
-                        // 🟢 回调通知 MainViewModel 重新加载历史表
+                        //回调通知 MainViewModel 重新加载历史表
                         OnAlarmSaved?.Invoke();
                     }
                     else
                     {
-                        // 还在观察期内，保持警报并显示倒计时
+                        //还在观察期内，保持警报并显示倒计时
                         double remaining = currentConfig.AlarmDebounceSeconds - secondsSinceLastViolation;
                         AlarmMessage = $"⚠️ 警报待解除，观察中... (剩余 {remaining:F1} 秒)";
                     }
@@ -345,7 +345,7 @@ namespace IndustrialMonitor.ViewModels
             if (tempViolated && pressViolated)
             {
                 alarmType = "温度+压力";
-                maxValue = _currentAlarmMaxTemp; // 混合超标时，日志记录温度最大值，或也可以分别处理，这里采用记录温度
+                maxValue = _currentAlarmMaxTemp;
                 threshold = TemperatureThreshold;
             }
             else if (tempViolated)
@@ -363,12 +363,12 @@ namespace IndustrialMonitor.ViewModels
 
             var record = new AlarmRecord
             {
-                DeviceId = DeviceId, // 新增（是改变，原本是固定设备名）🟢 改用当前设备自身的 DeviceId
+                DeviceId = DeviceId, //改用当前设备自身的 DeviceId
                 AlarmType = alarmType,
                 MaxValue = maxValue,
                 Threshold = threshold,
                 StartTime = _currentAlarmStartTime,
-                EndTime = DateTime.Now // 当前解除时间
+                EndTime = DateTime.Now //当前解除时间
             };
             await _alarmLogService.InsertAsync(record);
         }

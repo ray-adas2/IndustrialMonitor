@@ -34,8 +34,8 @@ public partial class LoginViewModel : ObservableObject
             return;
         }
 
-        // 密码从 LoginWindow 的 PasswordBox 获取，通过参数传入
-        // 实际绑定在 LoginWindow.xaml.cs 里处理
+        //密码从 LoginWindow 的 PasswordBox 获取，通过参数传入
+        //实际绑定在 LoginWindow.xaml.cs 里处理
     }
 
     /// <summary>由 LoginWindow 调用，传入 PasswordBox 的值</summary>

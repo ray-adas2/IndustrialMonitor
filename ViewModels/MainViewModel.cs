@@ -54,10 +54,10 @@ namespace IndustrialMonitor.ViewModels
             _deviceManager = deviceManager;
             _authService = authService;
 
-            // 按角色过滤菜单
+            //按角色过滤菜单
             Navigation.ApplyRoleFilter(authService);
 
-            // 首次启动时若没有已保存的设备，自动创建一个
+            //首次启动时若没有已保存的设备，自动创建一个
             if (_deviceManager.TotalCount == 0)
                 _deviceManager.AddDevice();
             _ = LoadAlarmHistoryAsync();
@@ -117,28 +117,28 @@ namespace IndustrialMonitor.ViewModels
         {
             _authService.Logout();
 
-            // 防止主窗口关闭时自动关机
+            //防止主窗口关闭时自动关机
             Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
-            // 关闭主窗口
+            //关闭主窗口
             foreach (Window w in Application.Current.Windows)
                 if (w is not Views.LoginWindow)
                     w.Close();
 
-            // 重新弹出登录
+            //重新弹出登录
             var loginWindow = App.ServiceProvider.GetRequiredService<Views.LoginWindow>();
             if (loginWindow.ShowDialog() == true)
             {
-                // 🟢 修复：登录成功后刷新用户相关的绑定属性
+                //修复：登录成功后刷新用户相关的绑定属性
                 OnPropertyChanged(nameof(CurrentUserName));
                 OnPropertyChanged(nameof(CurrentUserRole));
                 OnPropertyChanged(nameof(IsViewer));
                 OnPropertyChanged(nameof(CanModify));
 
-                // 🟢 按新用户角色重新过滤菜单
+                //按新用户角色重新过滤菜单
                 Navigation.ApplyRoleFilter(_authService);
 
-                // 🟢 重置导航到默认页面
+                //重置导航到默认页面
                 Navigation.SelectedMenuItem = Navigation.MenuItems.FirstOrDefault();
 
                 Application.Current.ShutdownMode = ShutdownMode.OnLastWindowClose;

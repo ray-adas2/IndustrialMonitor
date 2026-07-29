@@ -37,7 +37,7 @@ public class AuthService
         using var cmd = new SqliteCommand(sql, conn);
         cmd.ExecuteNonQuery();
 
-        // 确保默认管理员存在
+        //确保默认管理员存在
         var checkSql = "SELECT COUNT(*) FROM Users WHERE Username = 'admin'";
         using var checkCmd = new SqliteCommand(checkSql, conn);
         var count = (long)checkCmd.ExecuteScalar()!;
@@ -48,13 +48,13 @@ public class AuthService
             insCmd.Parameters.AddWithValue("$hash", HashPassword("admin123"));
             insCmd.ExecuteNonQuery();
 
-            // 再创建一个操作员
+            //创建一个operator
             insertSql = "INSERT INTO Users (Username, PasswordHash, Role) VALUES ('operator', $hash, 'Operator')";
             using var insCmd2 = new SqliteCommand(insertSql, conn);
             insCmd2.Parameters.AddWithValue("$hash", HashPassword("operator123"));
             insCmd2.ExecuteNonQuery();
 
-            // 再创建一个观察者
+            //创建一个viewer
             insertSql = "INSERT INTO Users (Username, PasswordHash, Role) VALUES ('viewer', $hash, 'Viewer')";
             using var insCmd3 = new SqliteCommand(insertSql, conn);
             insCmd3.Parameters.AddWithValue("$hash", HashPassword("viewer123"));

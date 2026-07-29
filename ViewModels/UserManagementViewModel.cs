@@ -51,13 +51,13 @@ public partial class UserManagementViewModel : ObservableObject
     private void ToggleUser(User? user)
     {
         if (user is null) return;
-        // 管理员账户不可被禁用
+        //管理员账户不可被禁用
         if (user.Role == "Admin")
         {
             StatusMessage = "管理员账户不可被禁用";
             return;
         }
-        // 不能禁用自己
+        //不能禁用自己
         if (user.Id == _authService.CurrentUser?.Id)
         {
             StatusMessage = "不能禁用当前登录用户";

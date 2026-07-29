@@ -45,7 +45,6 @@ namespace IndustrialMonitor.Services
                         press = 1.8 + _random.NextDouble() * 0.5;
                     }
 
-                    // 创建一个新数据包裹
                     var data = new DeviceData
                     {
                         DeviceId = "Dev-001",
@@ -54,9 +53,8 @@ namespace IndustrialMonitor.Services
                         Timestamp = DateTime.Now
                     };
 
-                    _dataQueue.Enqueue(data); // 放入队列
+                    _dataQueue.Enqueue(data);
 
-                    // 🟢 500 毫秒生产一次，配合 UI 端的 500 毫秒消费，达到完美平衡
                     Thread.Sleep(500);
                 }
             });

@@ -22,7 +22,7 @@ public partial class SettingsViewModel : ObservableObject
     [ObservableProperty] private int _slidingWindowSize;
     [ObservableProperty] private double _alarmDebounceSeconds;
 
-    // 修改密码
+    //修改密码
     [ObservableProperty] private string _oldPassword = string.Empty;
     [ObservableProperty] private string _newPassword = string.Empty;
     [ObservableProperty] private string _confirmPassword = string.Empty;
